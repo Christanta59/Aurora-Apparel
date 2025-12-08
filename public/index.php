@@ -40,7 +40,7 @@ if($_SESSION['user']['role'] !== 'user'){
 <div class="container">
   <div class="hero fade-in">
     <div class="hero-card">
-      <h2>Produk Terlaris ✨</h2>
+      <h2>Produk Terlaris</h2>
       <p>Desain stylish, bahan nyaman. Pilih favoritmu dan checkout cepat — stok langsung terpotong saat checkout.</p>
       <div style="margin-top:12px;">
         <input id="q" class="input" placeholder="Cari produk...">
