@@ -1,11 +1,15 @@
 <?php
 session_start();
-include '../config/db.php';
+include "../../config/db.php";
+
 
 if(!isset($_SESSION['login'])) {
     echo json_encode(['status' => 'error', 'message' => 'User belum login']);
     exit;
 }
+
+$product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+$qty        = isset($_POST['qty']) ? intval($_POST['qty']) : 1;
 
 $user_id = $_SESSION['user']['id'];
 $product_id = $_POST['product_id'];

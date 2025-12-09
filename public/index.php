@@ -138,7 +138,7 @@ function renderProducts(list){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
         <span class="badge">Stok: ${p.stock}</span>
         <!-- Tombol Add to Cart -->
-        <button class="btn" onclick="addCart('${p.sku}',1)">
+        <button class="btn" onclick="addCart('${p.id}',1)">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
             <path d="M0 1a1 1 0 0 1 1-1h1.5a.5.5 0 0 1 .485.379L3.89 3H14.5a.5.5 0 0 1 .49.598l-1.5 7A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.49-.402L1.61 1H1a1 1 0 0 1-1-1zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm6 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
           </svg> Add
@@ -151,42 +151,43 @@ function renderProducts(list){
 }
 
 // Tambah ke Cart
-async function addCart(sku, qty=1){
+async function addCart(product_id, qty = 1){
   const form = new FormData();
-  form.append('sku', sku);
+  form.append('product_id', product_id);
   form.append('qty', qty);
 
   try{
-    const res = await fetch('../api/cart_add.php', {method:'POST', body:form});
+    const res = await fetch('../api/cart/cart_add.php', {
+      method: 'POST',
+      body: form
+    });
+
     const data = await res.json();
 
-    if(data.status==='success'){
+    if(data.status === 'success'){
       showToast('Berhasil ditambahkan ke keranjang!');
       updateCartCount();
-    } 
-    else if(data.status==='login'){
-      alert('Silakan login terlebih dahulu');
-      window.location.href='login.php';
-    }
-    else if(data.status==='error'){
-      showToast('Gagal: ' + data.msg);
+    } else {
+      showToast('Gagal: ' + data.message);
     }
 
-  }catch(err){
+  } catch (err){
     showToast('Kesalahan jaringan');
   }
 }
 
+
 // Update jumlah item di navbar
 async function updateCartCount(){
   try{
-    const res = await fetch('../api/cart_list.php');
+    const res = await fetch('../api/cart/cart_list.php');
     const data = await res.json();
     document.getElementById('cart-count').innerText = data.length;
   }catch(err){
     console.error('Gagal memuat jumlah keranjang', err);
   }
 }
+
 
 // Panggil saat load page
 updateCartCount();

@@ -1,6 +1,7 @@
 <?php
 session_start();
-include '../config/db.php';
+include "../../config/db.php";
+
 
 if(!isset($_SESSION['login'])) {
     echo json_encode([]);
