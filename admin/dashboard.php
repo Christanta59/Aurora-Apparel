@@ -1,27 +1,56 @@
 <?php
 session_start();
 if(!isset($_SESSION['login']) || $_SESSION['user']['role']!="admin"){
-  header("Location: ../public/login.php");
-  exit;
+    header("Location: ../public/login.php");
+    exit;
 }
 ?>
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Admin Dashboard — Aurora</title>
-  <link rel="stylesheet" href="../public/assets/style.css">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<title>Admin Dashboard — Aurora</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../public/assets/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* Navbar & Logout Button */
+nav .navlinks a,
+nav .navlinks button {
+    font-family: 'Poppins', sans-serif;
+    font-weight:500;
+    color: var(--dark);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 18px;
+    padding: 0;
+    text-decoration: none;
+    transition: color .2s;
+}
+
+nav .navlinks a:hover,
+nav .navlinks button:hover {
+    color: var(--secondary);
+}
+</style>
 </head>
 <body>
 <nav>
   <div class="brand">
     <div class="logo">A</div>
-    <div><h1>Admin — Aurora</h1><div style="font-size:12px;color:var(--muted)">Dashboard</div></div>
+    <div>
+      <h1>Admin — Aurora</h1>
+      <div style="font-size:12px;color:var(--muted)">Dashboard</div>
+    </div>
   </div>
-  <div class="navlinks"><a href="../public/index.php">Lihat Toko</a></div>
+  <div class="navlinks">
+    <a href="../public/index.php">Lihat Toko</a>
+    <form method="POST" action="../api/logout.php" style="display:inline">
+      <button type="submit" class="nav-btn">Logout</button>
+    </form>
+  </div>
 </nav>
 
 <div class="container">
@@ -49,17 +78,14 @@ if(!isset($_SESSION['login']) || $_SESSION['user']['role']!="admin"){
 
 <script>
 async function loadDashboard(){
-  // fetch simple dashboard data via API
   try{
-    const r = await fetch('../api/dashboard.php');
-    const d = await r.json();
+    // Dashboard summary
+    const d = await (await fetch('../api/dashboard.php')).json();
     document.getElementById('totalTrans').innerText = d.total_transaksi || 0;
 
-    // count products
-    const pr = await fetch('../api/products.php'); const pl = await pr.json();
+    const pl = await (await fetch('../api/products.php')).json();
     document.getElementById('totalProd').innerText = pl.length || 0;
 
-    // sales grafik: d.grafik expected [{tgl, total}]
     const labels = d.grafik.map(x=>x.tgl);
     const vals = d.grafik.map(x=>Number(x.total));
 
@@ -84,8 +110,7 @@ async function loadDashboard(){
       }
     });
 
-    // recent transactions table
-    const recent = await fetch('../api/recent_orders.php').then(r=>r.json());
+    const recent = await (await fetch('../api/recent_orders.php')).json();
     let html = '<table><thead><tr><th>ID</th><th>Customer</th><th>Status</th><th>Tracking</th><th>Tanggal</th></tr></thead><tbody>';
     recent.forEach(o=>{
       html += `<tr><td>${o.id}</td><td>${o.customer||'-'}</td><td>${o.status}</td><td>${o.tracking_no||'-'}</td><td>${o.created_at}</td></tr>`;

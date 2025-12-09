@@ -19,20 +19,49 @@ if($_SESSION['user']['role'] !== 'user'){
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    *{font-family:'Poppins',sans-serif;}
+    .navlinks a{margin-left:12px;text-decoration:none;color:var(--primary);font-weight:500;}
+    .toast{
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ec4899;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 999;
+    }
+    .toast.show{opacity:1;}
+  </style>
 </head>
 <body>
-<nav>
-  <div class="brand">
-    <div class="logo">A</div>
+
+<nav class="flex items-center justify-between p-4 bg-white shadow">
+  <div class="flex items-center gap-2">
+    <div class="logo font-bold text-xl text-pink-500">A</div>
     <div>
-      <h1>Aurora Apparel</h1>
-      <div style="font-size:12px;color:var(--muted)">Local fashion • Modern vibes</div>
+      <h1 class="text-lg font-semibold">Aurora Apparel</h1>
+      <div class="text-xs text-gray-500">Local fashion • Modern vibes</div>
     </div>
   </div>
-  <div class="navlinks">
+
+  <div class="navlinks flex items-center">
     <a href="index.php">Home</a>
     <a href="tracking.php">Tracking</a>
     <a href="../admin/dashboard.php">Admin</a>
+    <!-- Ikon Keranjang dengan Jumlah Item -->
+    <a href="cart.php" class="flex items-center gap-1">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="20" r="1"></circle>
+        <circle cx="17" cy="20" r="1"></circle>
+        <path d="M1 1h4l2.68 12.39A2 2 0 0 0 9.62 15h7.76a2 2 0 0 0 1.94-1.61L22 6H6"></path>
+      </svg>
+      <span id="cart-count">0</span>
+    </a>
     <a href="../api/logout.php">Logout</a>
   </div>
 </nav>
@@ -46,6 +75,7 @@ if($_SESSION['user']['role'] !== 'user'){
         <input id="q" class="input" placeholder="Cari produk...">
       </div>
     </div>
+
     <div style="width:360px">
       <div class="card" style="text-align:center">
         <div style="font-size:12px;color:var(--muted)">Promo</div>
@@ -56,13 +86,9 @@ if($_SESSION['user']['role'] !== 'user'){
   </div>
 
   <div id="products" class="grid"></div>
-
-  <div id="loading" style="display:none;text-align:center;margin-top:18px;">
-    <div class="spinner"></div>
-  </div>
+  <div id="loading" style="display:none;text-align:center;margin-top:18px;"><div class="spinner"></div></div>
 </div>
 
-<!-- toast -->
 <div id="toast" class="toast"></div>
 
 <script>
@@ -71,17 +97,18 @@ const loadingEl = document.getElementById('loading');
 const toastEl = document.getElementById('toast');
 const q = document.getElementById('q');
 
-// show toast helper
+// Toast
 function showToast(msg){
   toastEl.textContent = msg;
   toastEl.classList.add('show');
   setTimeout(()=>toastEl.classList.remove('show'),3000);
 }
 
-// fetch products
+// Load Products
 async function loadProducts(){
   loadingEl.style.display='block';
   productsEl.innerHTML='';
+
   try{
     const res = await fetch('../api/products.php');
     const data = await res.json();
@@ -93,59 +120,56 @@ async function loadProducts(){
   }
 }
 
-function currency(x){ return new Intl.NumberFormat('id-ID').format(x) }
+// Format Rupiah
+function currency(x){ return new Intl.NumberFormat('id-ID').format(x); }
 
+// Render Produk
 function renderProducts(list){
   if(!list || list.length===0){
     productsEl.innerHTML='<div class="card">Belum ada produk.</div>';
     return;
   }
+
   const html = list.map(p=>`
     <div class="card fade-in">
       <div class="img">${p.name}</div>
       <div class="product-name">${p.name}</div>
       <div class="price">Rp ${currency(p.price)}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
         <span class="badge">Stok: ${p.stock}</span>
-        <button class="btn" onclick="checkout('${p.sku}', '${p.name}', ${p.price})">Checkout</button>
+        <!-- Tombol Add to Cart -->
+        <button class="btn" onclick="addCart('${p.sku}',1)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M0 1a1 1 0 0 1 1-1h1.5a.5.5 0 0 1 .485.379L3.89 3H14.5a.5.5 0 0 1 .49.598l-1.5 7A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.49-.402L1.61 1H1a1 1 0 0 1-1-1zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm6 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+          </svg> Add
+        </button>
       </div>
     </div>
   `).join('');
+
   productsEl.innerHTML = html;
 }
 
-// checkout (reserve stock & auto generate resi)
-async function checkout(sku, name, price){
-  showToast('Memproses checkout...');
+// Tambah ke Cart
+async function addCart(sku, qty=1){
   const form = new FormData();
   form.append('sku', sku);
-  form.append('qty', 1);
+  form.append('qty', qty);
 
   try{
-    const res = await fetch('../api/checkout.php', { 
-      method:'POST', 
-      body: form 
-    });
+    const res = await fetch('../api/cart_add.php', {method:'POST', body:form});
+    const data = await res.json();
 
-    const j = await res.json();
-
-    // ✅ BELUM LOGIN → ARAHKAN KE LOGIN
-    if(j.status === 'login'){
+    if(data.status==='success'){
+      showToast('Berhasil ditambahkan ke keranjang!');
+      updateCartCount();
+    } 
+    else if(data.status==='login'){
       alert('Silakan login terlebih dahulu');
-      window.location.href = 'login.php';
-      return;
+      window.location.href='login.php';
     }
-
-    // ✅ STOK HABIS / ERROR
-    if(j.status === 'error'){
-      showToast('Gagal: ' + j.msg);
-      return;
-    }
-
-    // ✅ SUKSES
-    if(j.status === 'success'){
-      showToast('Berhasil! Resi: ' + j.tracking);
-      loadProducts(); // refresh stok
+    else if(data.status==='error'){
+      showToast('Gagal: ' + data.msg);
     }
 
   }catch(err){
@@ -153,23 +177,39 @@ async function checkout(sku, name, price){
   }
 }
 
-q.addEventListener('input', ()=> {
+// Update jumlah item di navbar
+async function updateCartCount(){
+  try{
+    const res = await fetch('../api/cart_list.php');
+    const data = await res.json();
+    document.getElementById('cart-count').innerText = data.length;
+  }catch(err){
+    console.error('Gagal memuat jumlah keranjang', err);
+  }
+}
+
+// Panggil saat load page
+updateCartCount();
+
+// Search
+q.addEventListener('input',()=>{
   const val = q.value.toLowerCase();
   const cards = Array.from(document.querySelectorAll('.card'));
   cards.forEach(c=>{
-    const txt = c.querySelector('.product-name') ? c.querySelector('.product-name').innerText.toLowerCase() : '';
-    c.style.display = txt.includes(val) ? '' : 'none';
+    const txt = c.querySelector('.product-name')?.innerText.toLowerCase()||'';
+    c.style.display = txt.includes(val)?'':'none';
   });
 });
 
+// Inisialisasi
 loadProducts();
 </script>
 
-<!-- PWA: register service worker -->
 <script>
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(()=>console.log('SW registered')).catch(()=>console.log('SW failed'));
 }
 </script>
+
 </body>
 </html>
