@@ -80,19 +80,34 @@ async function deleteItem(id){
 }
 
 // Checkout
-checkoutBtn.addEventListener('click', async()=>{
-  try{
-    const res = await fetch('../api/cart_checkout.php',{method:'POST'});
-    const data = await res.json();
 
-    if(data.status==='success'){
-      alert('Checkout berhasil! Resi: '+data.tracking);
-      loadCart();
-    } else if(data.status==='empty'){
-      alert('Keranjang kosong');
+    // validasi simple
+    if(!payload.customer_name || !payload.customer_address || !payload.customer_phone){
+        alert("Mohon isi data pembeli dengan lengkap.");
+        return;
     }
-  }catch(e){alert('Gagal checkout')}
+
+    try{
+        const res = await fetch('../api/cart/checkout.php', {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        console.log("Checkout response:", data);
+
+        if(data.success){
+            alert("Checkout berhasil! Order ID: " + data.order_id);
+            loadCart();
+        } else {
+            alert("Checkout gagal: " + data.message);
+        }
+    } catch(e){
+        alert("Terjadi kesalahan server.");
+    }
 });
+
 
 // Initial load
 loadCart();

@@ -20,7 +20,7 @@
   <div class="card">
     <h2>Tracking Order</h2>
     <div style="margin:10px 0;">
-      <input id="resi" class="input" placeholder="Masukkan nomor resi (contoh: AUTO...)">
+      <input id="resi" class="input" placeholder="Masukkan nomor resi)">
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn" onclick="cek()">Cek Status</button>

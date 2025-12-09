@@ -52,7 +52,6 @@ if($_SESSION['user']['role'] !== 'user'){
   <div class="navlinks flex items-center">
     <a href="index.php">Home</a>
     <a href="tracking.php">Tracking</a>
-    <a href="../admin/dashboard.php">Admin</a>
     <!-- Ikon Keranjang dengan Jumlah Item -->
     <a href="cart.php" class="flex items-center gap-1">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -132,7 +131,7 @@ function renderProducts(list){
 
   const html = list.map(p=>`
     <div class="card fade-in">
-      <div class="img">${p.name}</div>
+      <div class="../public/assets/img/">${p.name}</div>
       <div class="product-name">${p.name}</div>
       <div class="price">Rp ${currency(p.price)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
@@ -159,8 +158,9 @@ async function addCart(product_id, qty = 1){
   try{
     const res = await fetch('../api/cart/cart_add.php', {
       method: 'POST',
-      body: form
-    });
+      body: form,
+      credentials: 'include'
+  });
 
     const data = await res.json();
 
@@ -180,7 +180,7 @@ async function addCart(product_id, qty = 1){
 // Update jumlah item di navbar
 async function updateCartCount(){
   try{
-    const res = await fetch('../api/cart/cart_list.php');
+    const res = await fetch('../api/cart/cart_list.php', { credentials: 'include' });
     const data = await res.json();
     document.getElementById('cart-count').innerText = data.length;
   }catch(err){

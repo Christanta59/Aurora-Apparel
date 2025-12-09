@@ -1,36 +1,69 @@
-<?php
-session_start();
-require_once __DIR__ . '/../config/db.php';
-if(!isset($_SESSION['login']) || ($_SESSION['user']['role'] ?? '') !== 'admin'){
-    header('Location: ../public/login.php');
-    exit;
-}
+<h2>Daftar Order</h2>
 
-// ambil semua order
-$res = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
-$orders = [];
-while($r = $res->fetch_assoc()) $orders[] = $r;
-?>
-<!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Admin - Orders</title></head>
-<body>
-<h1>Daftar Pesanan</h1>
-<table border="1" cellpadding="6" cellspacing="0">
-<thead><tr><th>ID</th><th>Nama</th><th>Telepon</th><th>Total</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
-<tbody>
-<?php foreach($orders as $o): ?>
+<table border="1" cellpadding="10" width="100%">
+<thead>
 <tr>
-  <td><?=htmlspecialchars($o['id'])?></td>
-  <td><?=htmlspecialchars($o['customer_name'] ?? $o['name'] ?? '')?></td>
-  <td><?=htmlspecialchars($o['customer_phone'] ?? '')?></td>
-  <td><?=number_format($o['total'] ?? ($o['total_price'] ?? $o['subtotal']),0,',','.')?></td>
-  <td><?=htmlspecialchars($o['status'] ?? '')?></td>
-  <td><?=htmlspecialchars($o['created_at'])?></td>
-  <td><a href="order_detail.php?id=<?=urlencode($o['id'])?>">Detail</a></td>
+    <th>ID</th>
+    <th>Pelanggan</th>
+    <th>Status</th>
+    <th>Aksi</th>
 </tr>
-<?php endforeach; ?>
+</thead>
+<tbody id="orderTable">
+    <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
 </tbody>
 </table>
-</body>
-</html>
+
+<script>
+// AMBIL DATA ORDER
+function loadOrders(){
+    fetch("../api/recent_orders.php")
+    .then(r=>r.json())
+    .then(data => {
+        let html = "";
+
+        data.forEach(o => {
+            html += `
+                <tr>
+                    <td>${o.id}</td>
+                    <td>${o.customer || '-'}</td>
+                    <td>
+                        <select id="status_${o.id}">
+                            <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+                            <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
+                            <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button onclick="save(${o.id})">Simpan</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("orderTable").innerHTML = html;
+    });
+}
+
+// SIMPAN STATUS
+function save(id){
+    const status = document.getElementById("status_" + id).value;
+
+    fetch("../api/update_order.php", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify({ id, status })
+    })
+    .then(r=>r.json())
+    .then(res=>{
+        if(res.success){
+            alert("Status diperbarui!");
+            loadOrders();
+        } else {
+            alert("Gagal update status");
+        }
+    });
+}
+
+loadOrders();
+</script>

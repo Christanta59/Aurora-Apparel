@@ -211,21 +211,21 @@ checkoutBtn.addEventListener('click', async () => {
   if(!checkFormValidity()) return alert('Lengkapi data checkout terlebih dahulu.');
 
   // prepare payload
-  const payload = {
+  payload = {
     customer_name: document.getElementById('customer_name').value.trim(),
     customer_address: document.getElementById('customer_address').value.trim(),
     customer_phone: document.getElementById('customer_phone').value.trim(),
     payment_method: document.getElementById('payment_method').value,
     courier: document.getElementById('courier').value,
-    // kirim cart minimal fields product_id/name/qty/price
     cart: cartItems.map(it => ({
-      cart_id: it.cart_id,
-      product_id: it.product_id,
-      name: it.name,
-      qty: it.qty,
-      price: it.price
+        cart_id: it.cart_id,
+        product_id: parseInt(it.product_id),
+        name: it.name,
+        qty: it.qty,
+        price: it.price
     }))
-  };
+};
+
 
   checkoutBtn.disabled = true;
   checkoutBtn.textContent = 'Memproses...';

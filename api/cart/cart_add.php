@@ -2,18 +2,26 @@
 session_start();
 include "../../config/db.php";
 
-
-if(!isset($_SESSION['login'])) {
+// Cek login
+if(!isset($_SESSION['login'])){
     echo json_encode(['status' => 'error', 'message' => 'User belum login']);
     exit;
 }
 
-$product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+// Validasi POST
+if(!isset($_POST['product_id'])){
+    echo json_encode(['status' => 'error', 'message' => 'product_id tidak dikirim']);
+    exit;
+}
+
+$user_id    = $_SESSION['user']['id'];
+$product_id = intval($_POST['product_id']);
 $qty        = isset($_POST['qty']) ? intval($_POST['qty']) : 1;
 
-$user_id = $_SESSION['user']['id'];
-$product_id = $_POST['product_id'];
-$qty = $_POST['qty'] ?? 1;
+if ($product_id <= 0){
+    echo json_encode(['status'=>'error','message'=>'Product ID tidak valid']);
+    exit;
+}
 
 // Cek apakah produk sudah ada di cart
 $stmt = $conn->prepare("SELECT id, qty FROM cart WHERE user_id=? AND product_id=?");
@@ -24,6 +32,7 @@ $result = $stmt->get_result();
 if($result->num_rows > 0){
     $row = $result->fetch_assoc();
     $newQty = $row['qty'] + $qty;
+
     $stmt = $conn->prepare("UPDATE cart SET qty=? WHERE id=?");
     $stmt->bind_param("ii", $newQty, $row['id']);
     $stmt->execute();

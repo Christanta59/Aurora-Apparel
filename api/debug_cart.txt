@@ -1,0 +1,17 @@
+Array
+(
+    [0] => Array
+        (
+            [product_id] => 1
+            [qty] => 2
+            [price] => 120000
+        )
+
+    [1] => Array
+        (
+            [product_id] => 2
+            [qty] => 1
+            [price] => 250000
+        )
+
+)
