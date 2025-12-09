@@ -70,7 +70,7 @@ try {
     $stmt = $conn->prepare("
         INSERT INTO orders
         (customer_name, customer_address, customer_phone, payment_method, courier, total_price, status, tracking_no)
-        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+        VALUES (?, ?, ?, ?, ?, ?, 'On Progress', ?)
     ");
 
     $stmt->bind_param(

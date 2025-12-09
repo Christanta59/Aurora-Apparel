@@ -199,9 +199,9 @@ async function loadDashboard(){
         <td>${o.customer||'-'}</td>
         <td>
             <select id="status_${o.id}" class="status-select">
-                <option value="pending" ${o.status=="On Progress"?"selected":""}>On Progress</option>
-                <option value="shipped" ${o.status=="Shipped"?"selected":""}>Shipped</option>
-                <option value="completed" ${o.status=="Completed"?"selected":""}>Completed</option>
+                <option value="On Progress" ${o.status=="On Progress"?"selected":""}>On Progress</option>
+                <option value="Shipped" ${o.status=="Shipped"?"selected":""}>Shipped</option>
+                <option value="Completed" ${o.status=="Completed"?"selected":""}>Completed</option>
             </select>
         </td>
         <td>${o.tracking_no || '-'}</td>

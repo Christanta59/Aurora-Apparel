@@ -29,9 +29,9 @@ function loadOrders(){
                     <td>${o.customer || '-'}</td>
                     <td>
                         <select id="status_${o.id}">
-                            <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
-                            <option value="processing" ${o.status==='processing'?'selected':''}>Processing</option>
-                            <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+                            <option value="On Progress" ${o.status==='On progress'?'selected':''}>On progress</option>
+                            <option value="Shipped" ${o.status==='Shipped'?'selected':''}>Shipped</option>
+                            <option value="Complete" ${o.status==='Complete'?'selected':''}>Complete</option>
                         </select>
                     </td>
                     <td>

@@ -57,9 +57,9 @@ if (isset($_POST['update'])) {
 
     <label>Status:</label>
     <select name="status">
-        <option value="pending"    <?php if($order['status']=="pending") echo "selected"; ?>>Pending</option>
-        <option value="processing" <?php if($order['status']=="processing") echo "selected"; ?>>Processing</option>
-        <option value="shipped"    <?php if($order['status']=="shipped") echo "selected"; ?>>Shipped</option>
+        <option value="On Progress"    <?php if($order['status']=="On Progress") echo "selected"; ?>>On Progress</option>
+        <option value="Shipped" <?php if($order['status']=="Shipped") echo "selected"; ?>>Shipped</option>
+        <option value="Complete"    <?php if($order['status']=="Complete") echo "selected"; ?>>Complete</option>
     </select>
 
     <label>No Resi:</label>

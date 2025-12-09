@@ -87,10 +87,9 @@ button { padding:10px 20px; margin-top:10px; cursor:pointer; }
 
         <label>Status:</label>
         <select name="status">
-            <option value="pending" <?= $order['status']=='pending'?'selected':'' ?>>Pending</option>
-            <option value="diproses" <?= $order['status']=='diproses'?'selected':'' ?>>Diproses</option>
-            <option value="dikirim" <?= $order['status']=='dikirim'?'selected':'' ?>>Dikirim</option>
-            <option value="selesai" <?= $order['status']=='selesai'?'selected':'' ?>>Selesai</option>
+            <option value="On progress" <?= $order['status']=='On progress'?'selected':'' ?>>On progress</option>
+            <option value="Shipped" <?= $order['status']=='Shipped'?'selected':'' ?>>Shipped</option>
+            <option value="Complete" <?= $order['status']=='Complete'?'selected':'' ?>>Complete</option>
         </select>
 
         <label>Tracking Number:</label>

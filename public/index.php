@@ -72,6 +72,12 @@ if($_SESSION['user']['role'] !== 'user'){
       <p>Desain stylish, bahan nyaman. Pilih favoritmu dan checkout cepat — stok langsung terpotong saat checkout.</p>
       <div style="margin-top:12px;">
         <input id="q" class="input" placeholder="Cari produk...">
+        <select id="sort" class="input" style="width:160px;margin-top:10px;">
+    <option value="">Urutkan</option>
+    <option value="low">Harga: Rendah → Tinggi</option>
+    <option value="high">Harga: Tinggi → Rendah</option>
+</select>
+
       </div>
     </div>
 
@@ -110,14 +116,23 @@ async function loadProducts(){
 
   try{
     const res = await fetch('../api/products.php');
-    const data = await res.json();
+    let data = await res.json();
+
+    // Ambil jenis sorting dari dropdown
+    const sortType = document.getElementById('sort').value;
+
+    // Jalankan sorting
+    data = sortProducts(data, sortType);
+
     renderProducts(data);
+
   }catch(e){
     productsEl.innerHTML = '<div class="card">Gagal memuat produk.</div>';
   }finally{
     loadingEl.style.display='none';
   }
 }
+
 
 // Format Rupiah
 function currency(x){ return new Intl.NumberFormat('id-ID').format(x); }
@@ -131,11 +146,18 @@ function renderProducts(list){
 
   const html = list.map(p=>`
     <div class="card fade-in">
-      <div class="../public/assets/img/">${p.name}</div>
+      <div class="img" style="width:100%;height:180px;overflow:hidden;border-radius:8px;">
+  <img 
+  src="assets/img/${p.id}.png"
+  style="width:100%;height:100%;object-fit:cover;"
+  onerror="this.src='assets/img/default.png'"
+>
+
+  </div>
+
       <div class="product-name">${p.name}</div>
       <div class="price">Rp ${currency(p.price)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-        <span class="badge">Stok: ${p.stock}</span>
         <!-- Tombol Add to Cart -->
         <button class="btn" onclick="addCart('${p.id}',1)">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -148,6 +170,16 @@ function renderProducts(list){
 
   productsEl.innerHTML = html;
 }
+function sortProducts(list, type){
+    if(type === "low"){
+        return list.sort((a,b) => a.price - b.price);
+    }
+    if(type === "high"){
+        return list.sort((a,b) => b.price - a.price);
+    }
+    return list;
+}
+
 
 // Tambah ke Cart
 async function addCart(product_id, qty = 1){
@@ -203,6 +235,7 @@ q.addEventListener('input',()=>{
 });
 
 // Inisialisasi
+document.getElementById('sort').addEventListener('change', loadProducts);
 loadProducts();
 </script>
 
