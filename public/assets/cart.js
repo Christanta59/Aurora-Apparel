@@ -106,7 +106,6 @@ async function deleteItem(id){
     } catch(e){
         alert("Terjadi kesalahan server.");
     }
-});
 
 
 // Initial load

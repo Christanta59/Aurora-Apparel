@@ -3,7 +3,7 @@ Array
     [0] => Array
         (
             [product_id] => 1
-            [qty] => 1
+            [qty] => 2
             [price] => 120000
         )
 
